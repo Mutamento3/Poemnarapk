@@ -21,19 +21,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 3. 赋予 gradlew 执行权限
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      # 3. 安装全局 Gradle 8.5（替代缺失的 gradlew）
+      - name: Setup Gradle 8.5
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.5
 
-      # 4. 构建 Debug 版 APK（加上 --stacktrace 方便出错时看日志）
+      # 4. 构建 Debug 版 APK
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace
 
       # 5. 构建 Release 版 APK
       - name: Build Release APK
-        run: ./gradlew assembleRelease --stacktrace
+        run: gradle assembleRelease --stacktrace
 
-      # 6. 把生成的 APK 上传
+      # 6. 把生成的 APK 上传，供你下载
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
