@@ -1,0 +1,51 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # 允许你随时手动点一下
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 拉取你的代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 安装 JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. 准备 Android SDK (云端自带，我们显式调用确保无误)
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # 4. 赋予 gradlew 执行权限
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 5. 构建 Debug 版 APK
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      # 6. 构建 Release 版 APK
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+
+      # 7. 把生成的 APK 上传，供你下载
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: app/build/outputs/apk/release/*.apk
